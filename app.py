@@ -1,5 +1,6 @@
 # MedTimer - Daily Medicine Companion
 # Full-feature build with persistence, theme toggle, and schedule export
+# Turtle removed (tkinter dependency) and replaced with emoji encouragement
 # Author: Saarthak
 
 import streamlit as st
@@ -7,8 +8,6 @@ import pandas as pd
 import datetime as dt
 from dateutil import parser
 import io, os, json
-from PIL import Image
-import turtle
 from fpdf import FPDF
 
 # ----------------------------
@@ -31,7 +30,7 @@ def save_data():
         with open(DATA_FILE, "w") as f:
             json.dump(data, f)
     except Exception:
-        pass  # in some environments writing may be restricted
+        pass  # In some environments writing may be restricted
 
 def load_data():
     if os.path.exists(DATA_FILE):
@@ -42,7 +41,7 @@ def load_data():
             st.session_state.history = data.get("history", {})
             st.session_state.id_counter = data.get("id_counter", 1)
         except Exception:
-            # fall back to empty state if file is corrupted
+            # Fall back if file is corrupted
             st.session_state.meds = []
             st.session_state.history = {}
             st.session_state.id_counter = 1
@@ -155,62 +154,32 @@ def weekly_adherence():
     weekly_pct = int(df["adherence_%"].mean()) if not df.empty else 0
     return df, weekly_pct
 
-# ----------------------------
-# Turtle graphics (smiley/trophy)
-# ----------------------------
-def draw_turtle_trophy(pct: int) -> Image.Image:
+def current_streak():
     """
-    Draw a simple reward graphic with turtle based on adherence pct.
-    Converts canvas PostScript to PIL Image for display in Streamlit.
+    Count consecutive past days with 100% adherence (up to 30 days).
     """
-    screen = turtle.Screen()
-    screen.setup(width=400, height=400)
-    screen.bgcolor("white")
-    t = turtle.Turtle(visible=False)
-    t.speed(0)
-    t.pensize(4)
+    today = dt.date.today()
+    streak = 0
+    for i in range(30):
+        d = (today - dt.timedelta(days=i)).isoformat()
+        rec = st.session_state.history.get(d)
+        if not rec or rec["scheduled"] == 0 or rec["taken"] < rec["scheduled"]:
+            break
+        streak += 1
+    return streak
 
+# ----------------------------
+# Emoji encouragement (turtle-free)
+# ----------------------------
+def encouragement_for(pct: int) -> str:
     if pct >= 90:
-        # Trophy rectangle
-        t.color("gold")
-        t.penup(); t.goto(-50, -30); t.pendown()
-        t.begin_fill()
-        for _ in range(2):
-            t.forward(100); t.left(90); t.forward(60); t.left(90)
-        t.end_fill()
-        # Handles
-        t.color("darkgoldenrod")
-        t.penup(); t.goto(-50, 30); t.pendown()
-        t.circle(30, 180)
-        t.penup(); t.goto(50, 30); t.pendown()
-        t.circle(-30, 180)
+        return "🏆 Trophy for excellent adherence!"
     elif pct >= 80:
-        # Smiley
-        t.color("green")
-        t.penup(); t.goto(0, -80); t.pendown()
-        t.circle(100)
-        t.penup(); t.goto(-40, 40); t.pendown(); t.dot(20)
-        t.penup(); t.goto(40, 40); t.pendown(); t.dot(20)
-        t.penup(); t.goto(-50, -10); t.pendown()
-        t.setheading(-60); t.circle(60, 120)
+        return "😊 Smiley for great adherence!"
     elif pct >= 70:
-        # Leaf
-        t.color("forestgreen")
-        t.penup(); t.goto(0, -60); t.pendown()
-        t.setheading(60)
-        for _ in range(2):
-            t.circle(80, 120)
-            t.right(180)
+        return "🍃 Leaf for good effort!"
     else:
-        t.color("lightgray")
-        t.penup(); t.goto(0, 0); t.pendown()
-        t.dot(14)
-
-    cv = screen.getcanvas()
-    ps = io.BytesIO(cv.postscript(colormode='color').encode('utf-8'))
-    img = Image.open(ps)
-    turtle.bye()
-    return img
+        return "✨ Keep going—every step counts!"
 
 # ----------------------------
 # CRUD operations
@@ -352,7 +321,6 @@ with left:
                     if st.button("Mark taken ✅", key=f"take_{m['id']}"):
                         mark_taken(m["id"])
                 else:
-                    # Quick edit expander when taken too (optional)
                     st.write("✅ Taken")
 
             with col3:
@@ -370,7 +338,7 @@ with left:
                             delete_medicine(m["id"])
                             st.warning("Deleted.")
 
-# Right column: Metrics, Weekly overview, Exports, Turtle, Tips
+# Right column: Metrics, Weekly overview, Exports, Tips, Encouragement
 with right:
     scheduled, taken, pct_today = adherence_today()
     st.metric(label="Today's adherence", value=f"{pct_today}%", delta=f"{taken}/{scheduled} taken")
@@ -392,11 +360,8 @@ with right:
     tip = tip_for_status(pct_today)
     st.info(tip)
 
-    try:
-        img = draw_turtle_trophy(max(pct_today, weekly_pct))
-        st.image(img, caption="Keep going—small steps, big impact!", use_container_width=True)
-    except Exception:
-        st.write("Turtle graphics unavailable in this environment—focus on your streak and clarity!")
+    msg = encouragement_for(max(pct_today, weekly_pct))
+    st.success(msg)
 
 # Footer
 st.markdown("---")
