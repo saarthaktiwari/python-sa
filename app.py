@@ -1,13 +1,8 @@
-# MedTimer - Daily Medicine Companion
-# Full-feature build with persistence, theme toggle, and schedule export
-# Turtle removed (tkinter dependency) and replaced with emoji encouragement
-# Author: Saarthak
-
 import streamlit as st
 import pandas as pd
 import datetime as dt
 from dateutil import parser
-import io, os, json
+import os, json
 from fpdf import FPDF
 
 # ----------------------------
@@ -30,7 +25,7 @@ def save_data():
         with open(DATA_FILE, "w") as f:
             json.dump(data, f)
     except Exception:
-        pass  # In some environments writing may be restricted
+        pass
 
 def load_data():
     if os.path.exists(DATA_FILE):
@@ -41,7 +36,6 @@ def load_data():
             st.session_state.history = data.get("history", {})
             st.session_state.id_counter = data.get("id_counter", 1)
         except Exception:
-            # Fall back if file is corrupted
             st.session_state.meds = []
             st.session_state.history = {}
             st.session_state.id_counter = 1
@@ -61,45 +55,9 @@ init_state()
 load_data()
 
 # ----------------------------
-# Theme toggle (Light / Dark / High Contrast)
-# ----------------------------
-mode = st.sidebar.radio("Theme mode", ["Light", "Dark", "High Contrast"])
-
-if mode == "Dark":
-    APP_PRIMARY = "#eeeeee"; APP_BG = "#212121"; APP_ACCENT = "#90caf9"
-elif mode == "High Contrast":
-    APP_PRIMARY = "#000000"; APP_BG = "#ffffff"; APP_ACCENT = "#ff0000"
-else:
-    APP_PRIMARY = "#1b5e20"; APP_BG = "#f5f7f9"; APP_ACCENT = "#4caf50"
-
-APP_WARN = "#f9a825"; APP_ERROR = "#c62828"
-
-# Basic CSS for readability (colors adapt to theme)
-st.markdown(f"""
-<style>
-body {{
-    background-color: {APP_BG};
-}}
-.big-title {{
-    font-size: 36px; font-weight: 700; color: {APP_PRIMARY};
-}}
-.small-muted {{
-    color: #607d8b;
-}}
-.item-pill {{
-    padding: 6px 10px; border-radius: 16px; display: inline-block;
-    font-weight: 600; color: white;
-}}
-</style>
-""", unsafe_allow_html=True)
-
-# ----------------------------
 # Utilities
 # ----------------------------
 def parse_hhmm(time_str: str) -> dt.datetime:
-    """
-    Parse HH:MM or similar into today's datetime.
-    """
     today = dt.date.today()
     t = parser.parse(time_str).time()
     return dt.datetime.combine(today, t)
@@ -108,14 +66,9 @@ def now_local() -> dt.datetime:
     return dt.datetime.now()
 
 def status_color(status: str) -> str:
-    return {"taken": APP_ACCENT, "upcoming": APP_WARN, "missed": APP_ERROR}.get(status, "#607d8b")
+    return {"taken": "#4caf50", "upcoming": "#f9a825", "missed": "#c62828"}.get(status, "#607d8b")
 
 def compute_status(med) -> str:
-    """
-    upcoming: now < scheduled & not taken
-    missed: now >= scheduled & not taken
-    taken: explicitly marked
-    """
     if med.get("status") == "taken":
         return "taken"
     target = parse_hhmm(med["time_str"])
@@ -132,10 +85,6 @@ def adherence_today():
     return scheduled, taken, pct
 
 def record_daily_history():
-    """
-    Snapshots today's scheduled/taken into history (for weekly view).
-    Call after significant changes (mark taken, etc.).
-    """
     date_key = dt.date.today().isoformat()
     scheduled, taken, _ = adherence_today()
     st.session_state.history[date_key] = {"scheduled": scheduled, "taken": taken}
@@ -155,9 +104,6 @@ def weekly_adherence():
     return df, weekly_pct
 
 def current_streak():
-    """
-    Count consecutive past days with 100% adherence (up to 30 days).
-    """
     today = dt.date.today()
     streak = 0
     for i in range(30):
@@ -169,17 +115,17 @@ def current_streak():
     return streak
 
 # ----------------------------
-# Emoji encouragement (turtle-free)
+# Emoji encouragement
 # ----------------------------
 def encouragement_for(pct: int) -> str:
     if pct >= 90:
-        return "🏆 Trophy for excellent adherence!"
+        return "🏆 Fantastic consistency! You're building a winning streak."
     elif pct >= 80:
-        return "😊 Smiley for great adherence!"
+        return "😊 Great job! Your routine is strong."
     elif pct >= 70:
-        return "🍃 Leaf for good effort!"
+        return "🍃 Good effort — keep nurturing your health."
     else:
-        return "✨ Keep going—every step counts!"
+        return "✨ Every step counts. Tomorrow is a fresh chance."
 
 # ----------------------------
 # CRUD operations
@@ -224,16 +170,14 @@ def mark_taken(med_id: int):
     save_data()
 
 # ----------------------------
-# Export functions (Today CSV/PDF)
+# Export functions
 # ----------------------------
 def export_today_csv():
     if st.session_state.meds:
         df = pd.DataFrame(st.session_state.meds)
         csv = df.to_csv(index=False).encode("utf-8")
-        st.download_button("Download today's schedule (CSV)", csv,
+        st.download_button("⬇️ Download today's schedule (CSV)", csv,
                            file_name="medtimer_today.csv", mime="text/csv")
-    else:
-        st.info("No medicines added yet.")
 
 def export_today_pdf():
     pdf = FPDF()
@@ -248,26 +192,26 @@ def export_today_pdf():
         pdf.cell(200, 10, txt="No medicines added.", ln=True)
 
     pdf_output = pdf.output(dest="S").encode("latin-1")
-    st.download_button("Download today's schedule (PDF)", pdf_output,
+    st.download_button("⬇️ Download today's schedule (PDF)", pdf_output,
                        file_name="medtimer_today.pdf", mime="application/pdf")
 
 # ----------------------------
-# Motivational tips (simple, supportive)
+# Motivational tips
 # ----------------------------
 TIPS_GOOD = [
-    "Consistency builds confidence. Keep it going!",
-    "Your routine is your superpower.",
-    "Great job—your future self is grateful."
+    "🌟 Consistency builds confidence. Keep it going!",
+    "💪 Your routine is your superpower.",
+    "🙌 Great job — your future self is grateful."
 ]
 TIPS_NEUTRAL = [
-    "You’re on track. A small step right now helps.",
-    "Take a breath and check what’s next.",
-    "Even one dose taken is progress."
+    "✨ You’re on track. A small step right now helps.",
+    "🌱 Take a breath and check what’s next.",
+    "📈 Even one dose taken is progress."
 ]
 TIPS_MISSED = [
-    "It happens. Reset and take the next dose when safe.",
-    "No worries—refocus on the next scheduled dose.",
-    "Forward is forward. You’ve got this."
+    "💖 It happens. Reset and take the next dose when safe.",
+    "🔄 No worries — refocus on the next scheduled dose.",
+    "➡️ Forward is forward. You’ve got this."
 ]
 
 def tip_for_status(pct: int) -> str:
@@ -281,88 +225,14 @@ def tip_for_status(pct: int) -> str:
 # ----------------------------
 # UI
 # ----------------------------
-st.markdown("<div class='big-title'>💊 MedTimer — Daily Medicine Companion</div>", unsafe_allow_html=True)
-st.write(f"<span class='small-muted'>Today: {dt.date.today().strftime('%a, %d %b %Y')}</span>", unsafe_allow_html=True)
+st.title("💊 MedTimer — Your Daily Health Companion")
+st.write(f"📅 Today: {dt.date.today().strftime('%A, %d %B %Y')}")
 
 left, right = st.columns([0.62, 0.38])
 
-# Left column: Add / Edit / Delete / Checklist
+# Left column
 with left:
-    st.subheader("Add medicine")
+    st.subheader("✨ Add a new reminder")
     with st.form("add_form", clear_on_submit=True):
         name = st.text_input("Medicine name")
-        time_str = st.text_input("Scheduled time (HH:MM)", placeholder="08:00")
-        remind_min = st.number_input("Remind minutes before", min_value=0, max_value=120, value=15, step=5)
-        submitted = st.form_submit_button("Add")
-        if submitted and name and time_str:
-            add_medicine(name, time_str, remind_min)
-            st.success("Added medicine.")
-
-    update_all_statuses()
-
-    st.subheader("Today's checklist")
-    if not st.session_state.meds:
-        st.info("No medicines added yet. Add your first medicine above.")
-    else:
-        for m in sorted(st.session_state.meds, key=lambda x: parse_hhmm(x["time_str"])):
-            col1, col2, col3 = st.columns([0.52, 0.24, 0.24])
-            color = status_color(m["status"])
-
-            with col1:
-                st.markdown(
-                    f"<span class='item-pill' style='background:{color}'>{m['name']} • {m['time_str']} • {m['status']}</span>",
-                    unsafe_allow_html=True
-                )
-                if m.get("taken_at"):
-                    st.caption(f"Taken at {m['taken_at']}")
-
-            with col2:
-                if m["status"] != "taken":
-                    if st.button("Mark taken ✅", key=f"take_{m['id']}"):
-                        mark_taken(m["id"])
-                else:
-                    st.write("✅ Taken")
-
-            with col3:
-                with st.expander("Edit / Delete", expanded=False):
-                    new_name = st.text_input("Name", value=m["name"], key=f"en_{m['id']}")
-                    new_time = st.text_input("Time (HH:MM)", value=m["time_str"], key=f"et_{m['id']}")
-                    new_remind = st.number_input("Remind (min)", min_value=0, max_value=120, value=int(m["remind_min"]), step=5, key=f"er_{m['id']}")
-                    c1, c2 = st.columns(2)
-                    with c1:
-                        if st.button("Save changes", key=f"save_{m['id']}"):
-                            edit_medicine(m["id"], new_name, new_time, int(new_remind))
-                            st.success("Updated.")
-                    with c2:
-                        if st.button("🗑️ Delete", key=f"del_{m['id']}"):
-                            delete_medicine(m["id"])
-                            st.warning("Deleted.")
-
-# Right column: Metrics, Weekly overview, Exports, Tips, Encouragement
-with right:
-    scheduled, taken, pct_today = adherence_today()
-    st.metric(label="Today's adherence", value=f"{pct_today}%", delta=f"{taken}/{scheduled} taken")
-
-    # Record snapshot so weekly has the latest numbers
-    record_daily_history()
-
-    df_week, weekly_pct = weekly_adherence()
-    st.metric(label="Weekly adherence (avg)", value=f"{weekly_pct}%")
-
-    st.subheader("Weekly overview")
-    st.dataframe(df_week, height=240, use_container_width=True)
-
-    st.subheader("Export")
-    export_today_csv()
-    export_today_pdf()
-
-    st.subheader("Encouragement")
-    tip = tip_for_status(pct_today)
-    st.info(tip)
-
-    msg = encouragement_for(max(pct_today, weekly_pct))
-    st.success(msg)
-
-# Footer
-st.markdown("---")
-st.caption("Designed for clarity and calm. Large fonts, gentle colors, simple actions.")
+        time_str = st.text_input("Scheduled time (HH:MM)", placeholder="08
