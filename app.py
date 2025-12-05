@@ -256,12 +256,18 @@ def export_today_pdf():
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="MedTimer - Today's Schedule", ln=True)
-    for m in sorted(st.session_state.meds, key=lambda x: parse_hhmm(x["time_str"])):
-        pdf.cell(200, 10, txt=f"{m['name']} at {m['time_str']} → {m['status']}", ln=True)
+    pdf.cell(200, 10, txt="MedTimer - Today's Schedule", ln=True, align="C")
+    pdf.ln(5)
+    if st.session_state.meds:
+        for m in sorted(st.session_state.meds, key=lambda x: parse_hhmm
+    if st.session_state.meds:
+        for m in sorted(st.session_state.meds, key=lambda x: parse_hhmm(x["time_str"])):
+            line = f"{m['name']} at {m['time_str']} → {m['status']}"
+            # ensure safe encoding for PDF
+            pdf.cell(200, 10, txt=line.encode("latin-1", "replace").decode("latin-1"), ln=True)
     else:
         pdf.cell(200, 10, txt="No medicines added.", ln=True)
-    pdf_output = pdf.output(dest="S").encode("latin-1")
+    pdf_output = pdf.output(dest="S").encode("latin-1", "replace")
     st.download_button("⬇️ Download today's schedule (PDF)", pdf_output,
                        file_name="medtimer_today.pdf", mime="application/pdf")
 
