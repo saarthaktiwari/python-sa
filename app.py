@@ -256,8 +256,8 @@ def export_today_pdf():
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="MedTimer - Today's Schedule", ln=True
-        for m in sorted(st.session_state.meds, key=lambda x: parse_hhmm(x["time_str"])):
+    pdf.cell(200, 10, txt="MedTimer - Today's Schedule", ln=True)
+    for m in sorted(st.session_state.meds, key=lambda x: parse_hhmm(x["time_str"])):
         pdf.cell(200, 10, txt=f"{m['name']} at {m['time_str']} → {m['status']}", ln=True)
     else:
         pdf.cell(200, 10, txt="No medicines added.", ln=True)
