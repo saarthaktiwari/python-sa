@@ -60,6 +60,18 @@ init_state()
 load_data()
 
 # ----------------------------
+# Reset function
+# ----------------------------
+def reset_progress():
+    st.session_state.username = None
+    st.session_state.meds = []
+    st.session_state.history = {}
+    st.session_state.id_counter = 1
+    if os.path.exists(DATA_FILE):
+        os.remove(DATA_FILE)
+    st.rerun()
+
+# ----------------------------
 # Login screen
 # ----------------------------
 if not st.session_state.username:
@@ -75,7 +87,7 @@ if not st.session_state.username:
         if name.strip():
             st.session_state.username = name.strip()
             st.success(f"Welcome, {st.session_state.username}! Let’s set you up.")
-            st.rerun()  # fixed API
+            st.rerun()
         else:
             st.warning("Name can't be empty.")
     st.stop()
@@ -253,11 +265,14 @@ st.title(f"💊 MedTimer — Welcome back, {st.session_state.username}")
 st.write(f"📅 Today: {dt.date.today().strftime('%A, %d %B %Y')}")
 st.caption("A calm, encouraging space to keep your medicines on track.")
 
+# Reset button at the top-right
+st.sidebar.button("🔄 Reset Progress / Log out", on_click=reset_progress)
+
 left, right = st.columns([0.62, 0.38])
 
 # Left column
 with left:
-    st.subheader("✨ Add a new reminder to keep you on track")
+    st.subheader("✨ Add a new reminder")
     with st.form("add_form", clear_on_submit=True):
         name = st.text_input("Medicine name")
         time_str = st.text_input("Scheduled time (HH:MM)", placeholder="08:00")
@@ -266,15 +281,15 @@ with left:
         if submitted:
             if name.strip() and time_str.strip():
                 add_medicine(name, time_str, remind_min)
-                st.success("✅ Medicine added! You're one step closer to staying on track.")
+                st.success("✅ Medicine added!")
             else:
                 st.warning("Please fill in both the name and time.")
 
     update_all_statuses()
 
-    st.subheader("📋 Today's medicines — you're doing great!")
+    st.subheader("📋 Today's medicines")
     if not st.session_state.meds:
-        st.info("No medicines added yet. Add your first reminder above.")
+        st.info("No medicines added yet.")
     else:
         for m in sorted(st.session_state.meds, key=lambda x: parse_hhmm(x["time_str"])):
             col1, col2, col3 = st.columns([0.52, 0.24, 0.24])
@@ -293,7 +308,7 @@ with left:
                 if m["status"] != "taken":
                     if st.button("Mark taken ✅", key=f"take_{m['id']}"):
                         mark_taken(m["id"])
-                        st.success("Nice work! Dose recorded.")
+                        st.success("Dose recorded.")
                 else:
                     st.write("✅ Taken")
 
@@ -321,9 +336,7 @@ with right:
     scheduled, taken, pct_today = adherence_today()
     st.metric(label="Today's adherence", value=f"{pct_today}%", delta=f"{taken}/{scheduled} taken")
 
-    # Snapshot for weekly stats
     record_daily_history()
-
     df_week, weekly_pct = weekly_adherence()
     streak = current_streak()
 
