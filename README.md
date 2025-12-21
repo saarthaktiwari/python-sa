@@ -40,6 +40,135 @@ For cloud deployment, upload the repository to GitHub and use Streamlit Cloud to
 
 * Reminder system to ensure medication is taken
 
+**Note:**
+
+Streamlit integration does not have support for Tkinter or Turtle code, so I had to resort to using emojis for symbols of encouragement and in places where Turtle was to be utilized. Below is the prepared Turtle code that would have been used in place of the emojis if support was there:
+
+import turtle
+
+
+screen = turtle.Screen()
+screen.title("MedTimer Turtle Graphics Demo")
+screen.bgcolor("lightyellow")
+
+t = turtle.Turtle()
+t.pensize(3)
+t.speed(5)
+
+#heading text
+t.penup()
+t.goto(0, 250)
+t.pendown()
+t.color("black")
+t.write("MedTimer Turtle Graphics Demo", align="center", font=("Arial", 16, "bold"))
+
+# smile outline
+t.penup()
+t.goto(-200, 150)
+t.pendown()
+t.color("green")
+t.circle(60)  
+
+# eyes
+t.penup()
+t.goto(-225, 220)
+t.pendown()
+t.dot(12, "black")
+t.penup()
+t.goto(-175, 220)
+t.pendown()
+t.dot(12, "black")
+
+# mouth
+t.penup()
+t.goto(-235, 190)
+t.setheading(-60)
+t.pendown()
+t.circle(40, 120)
+
+# smiley label
+t.penup()
+t.goto(-80, 150)
+t.pendown()
+t.color("green")
+t.write("Smiley → Encouragement when adherence is high", align="left", font=("Arial", 12, "bold"))
+
+# medal
+t.penup()
+t.goto(-200, 0)
+t.pendown()
+t.color("gold")
+
+# Medal circle
+t.begin_fill()
+t.circle(50)
+t.end_fill()
+
+# blue ribbon
+t.penup()
+t.goto(-260, 20)
+t.pendown()
+t.color("blue")
+t.begin_fill()
+t.setheading(-90)
+t.forward(50)
+t.right(30)
+t.forward(25)
+t.right(120)
+t.forward(25)
+t.right(30)
+t.forward(50)
+t.end_fill()
+
+# red rbbon
+t.penup()
+t.goto(-230, 20)
+t.pendown()
+t.color("red")
+t.begin_fill()
+t.setheading(-90)
+t.forward(50)
+t.left(30)
+t.forward(25)
+t.left(120)
+t.forward(25)
+t.left(30)
+t.forward(50)
+t.end_fill()
+
+# medal label
+t.penup()
+t.goto(-80, 0)
+t.pendown()
+t.color("gold")
+t.write("Medal → Reward for streaks/adherence success", align="left", font=("Arial", 12, "bold"))
+
+# heart
+t.penup()
+t.goto(-200, -150)
+t.pendown()
+t.color("red")
+t.begin_fill()
+t.left(50)
+t.forward(70)          
+t.circle(30, 180)
+t.right(100)
+t.circle(30, 180)
+t.forward(70)
+t.end_fill()
+
+# heart label
+t.penup()
+t.goto(-80, -150)
+t.pendown()
+t.color("red")
+t.write("Heart → Symbol of care & motivation", align="left", font=("Arial", 12, "bold"))
+
+# end
+t.hideturtle()
+turtle.done()
+
+
 Here is the link to the application:
 
 https://med-timer-nws9wyu2acajgpyhpscttf.streamlit.app/
