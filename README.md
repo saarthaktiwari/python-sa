@@ -50,4 +50,18 @@ Here is the link to the application:
 
 https://med-timer-nws9wyu2acajgpyhpscttf.streamlit.app/
 
+**App Screenshots:**
+
+<img width="954" height="560" alt="image" src="https://github.com/user-attachments/assets/ad0dc6c4-f037-4790-b444-2de0f3a2bd22" />
+
+<img width="947" height="151" alt="image" src="https://github.com/user-attachments/assets/1190edb5-2715-4f79-ae08-bd01c284c022" />
+
+<img width="264" height="296" alt="image" src="https://github.com/user-attachments/assets/30bcb63d-f40f-4ba8-8516-810a5b7df73e" />
+
+<img width="586" height="341" alt="image" src="https://github.com/user-attachments/assets/e5ae1003-3cf1-4121-a187-6f1880c52fb7" />
+
+<img width="570" height="379" alt="image" src="https://github.com/user-attachments/assets/dccd6ac5-506e-4c79-8509-32aec28be737" />
+
+<img width="251" height="171" alt="image" src="https://github.com/user-attachments/assets/9a2f70a7-04f9-49c1-a3c6-4216e8258c20" />
+
 
