@@ -1,5 +1,3 @@
-<img width="1918" height="1028" alt="image" src="https://github.com/user-attachments/assets/697c9999-00ce-471a-9673-4fade5534ad2" /># IDAI1011000466-Saarthak-Tiwari
-
 # Unit 2 - Python Programming
 
 # Candidate Name and Number: Saarthak Tiwari, 1000466
