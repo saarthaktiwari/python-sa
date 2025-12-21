@@ -1,4 +1,4 @@
-# IDAI1011000466-Saarthak-Tiwari
+<img width="1918" height="1028" alt="image" src="https://github.com/user-attachments/assets/697c9999-00ce-471a-9673-4fade5534ad2" /># IDAI1011000466-Saarthak-Tiwari
 
 # Unit 2 - Python Programming
 
@@ -272,6 +272,9 @@ t.write("Heart → Symbol of care & motivation", align="left", font=("Arial", 12
 t.hideturtle()
 
 turtle.done()
+
+
+<img width="1918" height="1028" alt="image" src="https://github.com/user-attachments/assets/71bcab5f-4d5a-4b94-a656-f5b89f101b04" />
 
 
 
